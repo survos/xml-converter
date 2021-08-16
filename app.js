@@ -1,25 +1,57 @@
-var http = require('http');
+// var http = require('http');
 const url = require('url');
-const assert = require('assert')
-const { decodeExposureParams, encodeExposureParams } = require('@wmakeev/darkroom-xmp-tools')
+
+// const assert = require('assert')
+const querystring = require('querystring');
+const { decodeParams, decodeExposureParams, encodeExposureParams } = require('@wmakeev/darkroom-xmp-tools')
+
+const express = require('express')
+const app = express()
+// use the express-static middleware
+app.use(express.static("public"))
+
+// const port = 3000
+// app.listen(process.env.PORT || 3000)
+app.get('/', (req, res) => {
+    // const queryObject = url.parse(req.url,true).query;
+
+    let type = req.query.type || 'exposure';
+    let limit = req.query.limit;
+
+    // let paramStr = queryObject.params;
+    // console.log(paramStr, queryObject());
+
+    const paramString = req.query.str || '0000000040a0093bd8ce374000004842000080c1';
+    // let paramsObj = decodeParams<('exposure')>(EXPOSURE_PARAMS_BIN_STR);
+    // Call function:
+    // let paramsObj = window['decode' + Exposure + 'Paramstype'](paramString);
+    // let paramsObj = decodeExposureParams(EXPOSURE_PARAMS_BIN_STR)
+    let paramsObj = decodeParams(type, paramString);
+
+    // res.writeHead(200, {'Content-Type': 'application/json'});
+    res.send(JSON.stringify(paramsObj))
+    // res.end('Feel free to add query parameters to the end of the url');
+    // res.send('Hello World! ' + type)
+})
+
+
+// define the first route
+app.get("/", function (req, res) {
+    res.send("<h1>Hello World!</h1>")
+})
+
+// start the server listening for requests
+app.listen(process.env.PORT || 3000,
+    () => console.log("Server is running..."));
+
+
+
+// app.listen(process.env.PORT || 3000);
+// app.listen(port, () => {
+//     console.log(`Example app listening at http://localhost:${port}`)
+// })
 
 //create a server object:
-http.createServer(function (req, res) {
-        const queryObject = url.parse(req.url,true).query;
-
-        let paramStr = queryObject.params;
-    console.log(paramStr, queryObject());
-
-    const EXPOSURE_PARAMS_BIN_STR = '0000000040a0093bd8ce374000004842000080c0';
-
-
-    let paramsObj = decodeExposureParams(EXPOSURE_PARAMS_BIN_STR)
-
-    res.writeHead(200, {'Content-Type': 'application/json'});
-    res.write(JSON.stringify(paramsObj))
-    // res.end('Feel free to add query parameters to the end of the url');
-    // res.end(); //end the response
-}).listen(8080); //the server object listens on port 8080
 
 function convert()
 {
